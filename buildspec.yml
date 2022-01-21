@@ -26,3 +26,4 @@ phases:
       ## DockerイメージのECRへのプッシュ
       - docker push $IMAGE_REPOSITORY_NAME:latest
       - docker push $IMAGE_REPOSITORY_NAME:$IMAGE_TAG
+
