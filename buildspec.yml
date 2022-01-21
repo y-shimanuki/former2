@@ -26,13 +26,3 @@ phases:
       ## DockerイメージのECRへのプッシュ
       - docker push $IMAGE_REPOSITORY_NAME:latest
       - docker push $IMAGE_REPOSITORY_NAME:$IMAGE_TAG
-
-      ## ECS+CodeDeployにどのイメージを使用するか指示するためのファイルを作成
-      - printf '{"Version":"1.0","ImageURI":"%s"}' $IMAGE_REPOSITORY_NAME:$IMAGE_TAG > imageDetail.json
-
-artifacts:
-  ## buildの最後で作成したファイルをアーティファクトとして流す
-  files:
-    - imageDetail.json
-    - taskdef.json
-    - appspec.yaml
