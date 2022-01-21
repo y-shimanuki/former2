@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      ## ECRにログイン
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+
+      ## ECRのURIの変数を定義
+      - IMAGE_REPOSITORY_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_NAME}
+
+      ## Dockerイメージのタグとして使用するため、Gitのコミットハッシュを取得
+      - IMAGE_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION
+  build:
+    commands:
+      ## Dockerイメージのビルド
+      - docker build -t $IMAGE_REPOSITORY_NAME:latest .
+
+      ## Dockerイメージに追加でタグ付け
+      - docker tag $IMAGE_REPOSITORY_NAME:latest $IMAGE_REPOSITORY_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      ## DockerイメージのECRへのプッシュ
+      - docker push $IMAGE_REPOSITORY_NAME:latest
+      - docker push $IMAGE_REPOSITORY_NAME:$IMAGE_TAG
+
+      ## ECS+CodeDeployにどのイメージを使用するか指示するためのファイルを作成
+      - printf '{"Version":"1.0","ImageURI":"%s"}' $IMAGE_REPOSITORY_NAME:$IMAGE_TAG > imageDetail.json
+
+artifacts:
+  ## buildの最後で作成したファイルをアーティファクトとして流す
+  files:
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yaml
