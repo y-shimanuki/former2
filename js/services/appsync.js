@@ -679,7 +679,16 @@ service_mapping_functions.push(function(reqParams, obj, tracked_resources){
             'options': reqParams
         });
     } else if (obj.type == "appsync.graphqlschema") {
-        var definition = String.fromCharCode.apply(null, obj.data.schema.data);
+        var definition = '';
+        try {
+            if (typeof process === 'object') {
+                definition = obj.data.schema.toString();
+            } else {
+                definition = String.fromCharCode.apply(null, obj.data.schema.data);
+            }
+        } catch(err) {
+            definition = obj.data.schema.toString();
+        }
         reqParams.cfn['Definition'] = definition;
         reqParams.tf['definition'] = definition;
         reqParams.cfn['ApiId'] = obj.data.apiId;
