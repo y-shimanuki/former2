@@ -620,12 +620,12 @@ service_mapping_functions.push(function(reqParams, obj, tracked_resources){
                             });
                         });
                     }
-                    metric = {
+                    transform = {
                         'Expression': assetmodelproperty.type.transform.expression,
                         'Variables': variables
                     };
                 }
-                if (assetmodelproperty.type) {
+                if (typename) {
                     type = {
                         'Attribute': attribute,
                         'Metric': metric,
